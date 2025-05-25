@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive Stock Analysis</title>
+    <!-- Include Marked.js library from a CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            margin: 0;
+            padding: 20px;
+            background-color: #f4f7f6;
+            color: #333;
+        }
+        .container {
+            max-width: 900px;
+            margin: 20px auto;
+            background-color: #ffffff;
+            padding: 25px;
+            border-radius: 8px;
+            box-shadow: 0 2px M10px rgba(0, 0, 0, 0.1);
+        }
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        header h1 {
+            color: #2c3e50;
+        }
+        .input-section {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 25px;
+            align-items: center;
+        }
+        .input-section label {
+            font-weight: bold;
+            margin-right: 5px;
+        }
+        .input-section input[type="text"] {
+            flex-grow: 1;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 1em;
+        }
+        .input-section select {
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 1em;
+            background-color: white;
+        }
+        .input-section button {
+            padding: 10px 18px;
+            background-color: #3498db;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            font-size: 1em;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+        .input-section button:hover {
+            background-color: #2980b9;
+        }
+        .results-container {
+            margin-top: 20px;
+            padding: 15px;
+            border: 1px solid #e0e0e0;
+            border-radius: 5px;
+            background-color: #fdfdfd;
+            min-height: 100px; /* To give it some initial size */
+        }
+        .loading-message, .error-message {
+            text-align: center;
+            font-style: italic;
+            padding: 20px;
+            color: #555;
+        }
+        .error-message {
+            color: #c0392b;
+        }
+
+        /* Table Styles from your previous report.html for consistency */
+        h2 { /* For potential H2 in markdown */
+            color: #3498db;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 8px;
+            margin-top: 30px;
+        }
+        h3 { /* For H3 in markdown */
+            color: #2980b9;
+            margin-top: 25px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+            margin-bottom: 25px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        }
+        th, td {
+            border: 1px solid #e0e0e0;
+            padding: 10px 12px;
+            text-align: left;
+            font-size: 0.95em;
+        }
+        th {
+            background-color: #ecf0f1;
+            font-weight: 600;
+            color: #34495e;
+        }
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+        tr:hover {
+            background-color: #f1f1f1;
+        }
+        a {
+            color: #3498db;
+            text-decoration: none;
+        }
+        a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Interactive Stock Analyzer</h1>
+        </header>
+
+        <div class="input-section">
+            <label for="stockSymbol">Symbol:</label>
+            <input type="text" id="stockSymbol" placeholder="e.g., AAPL, GOOGL" value="GOOGL">
+            <label for="analysisType">Analysis Type:</label>
+            <select id="analysisType">
+                <option value="Complete Analysis" selected>Complete Analysis</option>
+                <option value="News Impact">News Impact</option>
+            </select>
+            <button id="analyzeButton">Analyze</button>
+        </div>
+
+        <div id="resultsContainer" class="results-container">
+            <p class="loading-message" style="display:none;">Enter a stock symbol and click Analyze.</p>
+        </div>
+    </div>
+
+    <script>
+        const stockSymbolInput = document.getElementById('stockSymbol');
+        const analysisTypeSelect = document.getElementById('analysisType');
+        const analyzeButton = document.getElementById('analyzeButton');
+        const resultsContainer = document.getElementById('resultsContainer');
+
+        // Set initial message
+        resultsContainer.innerHTML = '<p style="text-align:center; color: #777;">Enter a stock symbol and click "Analyze" to see results.</p>';
+
+
+        analyzeButton.addEventListener('click', async () => {
+            const symbol = stockSymbolInput.value.trim().toUpperCase();
+            const analysisType = analysisTypeSelect.value;
+
+            if (!symbol) {
+                resultsContainer.innerHTML = '<p class="error-message">Please enter a stock symbol.</p>';
+                return;
+            }
+
+            resultsContainer.innerHTML = '<p class="loading-message">Fetching analysis for ' + symbol + '...</p>';
+
+            try {
+                // IMPORTANT: Make sure your Flask API is running and accessible at this URL
+                // If your Flask app is on a different port or domain, update this URL.
+                const response = await fetch('http://127.0.0.1:5001/analyze', { // Assuming your Flask app runs on port 5001
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        stock_symbol: symbol,
+                        analysis_type: analysisType
+                    }),
+                });
+
+                if (!response.ok) {
+                    // Try to get more details from the API error response if possible
+                    let errorMsg = `Error: ${response.status} ${response.statusText}`;
+                    try {
+                        const errorData = await response.json();
+                        if (errorData && errorData.message) {
+                            errorMsg = `API Error: ${errorData.message}`;
+                        }
+                    } catch (e) {
+                        // Could not parse error JSON, stick with statusText
+                    }
+                    throw new Error(errorMsg);
+                }
+
+                const jsonData = await response.json();
+
+                if (jsonData.status === 'success' && jsonData.data) {
+                    // Use Marked.js to convert Markdown to HTML
+                    // The `marked()` function is now deprecated, use `marked.parse()`
+                    const htmlContent = marked.parse(jsonData.data);
+                    resultsContainer.innerHTML = htmlContent;
+                } else if (jsonData.message) {
+                     resultsContainer.innerHTML = `<p class="error-message">Error from API: ${jsonData.message}</p>`;
+                }
+                else {
+                    resultsContainer.innerHTML = '<p class="error-message">Received an unexpected response structure from the API.</p>';
+                }
+
+            } catch (error) {
+                console.error('Fetch error:', error);
+                resultsContainer.innerHTML = `<p class="error-message">Failed to fetch analysis. Check console for details. <br>Error: ${error.message}</p><p style="font-size:0.9em; color:#555;">Make sure your Flask API backend is running and accessible at http://127.0.0.1:5001/analyze and that it allows requests from this page (CORS policy if served from a different origin).</p>`;
+            }
+        });
+
+        // Optional: Allow pressing Enter in the input field to trigger analysis
+        stockSymbolInput.addEventListener('keypress', function(event) {
+            if (event.key === 'Enter') {
+                event.preventDefault(); // Prevent default form submission if it were in a form
+                analyzeButton.click();
+            }
+        });
+    </script>
+</body>
+</html>

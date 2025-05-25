@@ -1,0 +1,8 @@
+agno
+openai
+Flask
+dotenv
+yfinance
+duckduckgo-search
+groq
+google-genai

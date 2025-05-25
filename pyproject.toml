@@ -1,0 +1,18 @@
+[project]
+name = "finance-agent"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = [
+    "agno>=1.5.4",
+    "dotenv>=0.9.9",
+    "duckduckgo-search>=8.0.2",
+    "flask>=3.1.1",
+    "flask-cors>=6.0.0",
+    "google-genai>=1.16.1",
+    "groq>=0.25.0",
+    "openai>=1.82.0",
+    "streamlit>=1.45.1",
+    "yfinance>=0.2.61",
+]

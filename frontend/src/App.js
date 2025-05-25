@@ -9,7 +9,7 @@ export default function App() {
   const [symbol, setSymbol] = useState('GOOGL');
   const [analysisType, setAnalysisType] = useState('Complete Analysis');
   const [resultHtml, setResultHtml] = useState(
-    `<p style="text-align:center; color: #777;">Enter a stock symbol and click \"Analyze\" to see results.</p>`
+    `<p style="text-align:center; color: #777;">Enter a stock symbol and click "Analyze" to see results.</p>`
   );
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);

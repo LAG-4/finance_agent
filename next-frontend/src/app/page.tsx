@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
+import { Squares } from '@/components/ui/squares-background';
 
 import { Button } from '@/components/ui/button';
 import {
@@ -70,34 +71,57 @@ export default function Home() {
   };
 
   return (
-    <div className="min-h-screen p-8 sm:p-20 grid grid-rows-[20px_1fr_20px] gap-16 font-sans">
-      <main className="row-start-2 w-full max-w-3xl mx-auto flex flex-col gap-8">
-        <h1 className="text-3xl font-bold text-center">Interactive Stock Analyzer</h1>
+    <div className="min-h-screen relative bg-gray-100 p-8 flex items-center justify-center overflow-hidden">
+      {/* Background squares animation */}
+      <div className="absolute inset-0 z-0">
+        <Squares 
+          direction="diagonal"
+          speed={0.5}
+          squareSize={40}
+          borderColor="#3b82f6"
+          hoverFillColor="rgba(59, 130, 246, 0.2)"
+        />
+      </div>
+      <main className="bg-white/90 backdrop-blur-sm rounded-lg shadow-lg p-8 w-full max-w-3xl z-10">
+        <header className="mb-8 text-center">
+          <h1 className="text-4xl font-bold text-blue-600 mb-2">Interactive Stock Analyzer</h1>
+        </header>
 
-        <div className="flex flex-col sm:flex-row gap-4">
-          <input
-            aria-label="Stock Symbol"
-            placeholder="e.g., AAPL, GOOGL"
-            value={symbol}
-            onChange={e => setSymbol(e.target.value)}
-            onKeyPress={handleKeyPress}
-            className="flex-1 px-4 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
-          />
-          <select
-            value={analysisType}
-            onChange={e => setAnalysisType(e.target.value)}
-            className="flex-1 px-4 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
-          >
-            <option>Complete Analysis</option>
-            <option>News Impact</option>
-          </select>
-          <Button
-            onClick={analyze}
-            disabled={loading}
-            className="px-6"
-          >
-            {loading ? 'Analyzing…' : 'Analyze'}
-          </Button>
+        <div className="mb-8">
+          <div className="flex flex-wrap items-center justify-center gap-4 mb-6">
+              <div className="flex items-center">
+                <label htmlFor="stockSymbol" className="mr-2 font-medium">Symbol:</label>
+                <input
+                  id="stockSymbol"
+                  placeholder="e.g., AAPL, GOOGL"
+                  value={symbol}
+                  onChange={e => setSymbol(e.target.value)}
+                  onKeyDown={handleKeyPress}
+                  className="h-9 rounded-md border border-gray-300 bg-white px-3 py-2 text-sm shadow-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-blue-500"
+                />
+              </div>
+              
+              <div className="flex items-center">
+                <label htmlFor="analysisType" className="mr-2 font-medium">Analysis Type:</label>
+                <select
+                  id="analysisType"
+                  value={analysisType}
+                  onChange={e => setAnalysisType(e.target.value)}
+                  className="h-9 rounded-md border border-gray-300 bg-white px-3 py-2 text-sm shadow-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-blue-500"
+                >
+                  <option value="Complete Analysis">Complete Analysis</option>
+                  <option value="News Impact">News Impact</option>
+                </select>
+              </div>
+              
+              <Button 
+                onClick={analyze} 
+                disabled={loading}
+                className="bg-blue-500 hover:bg-blue-600 text-white"
+              >
+                {loading ? 'Analyzing...' : 'Analyze'}
+              </Button>
+            </div>
         </div>
 
         {error && <p className="text-red-600">{error}</p>}
@@ -105,7 +129,7 @@ export default function Home() {
         <Card>
           <CardHeader>
             <CardTitle>Analysis Results</CardTitle>
-            <CardDescription>Rendered with ShadCN components</CardDescription>
+            <CardDescription>Enter stock symbol and click Analyze to see results.</CardDescription>
           </CardHeader>
           <CardContent className="overflow-auto">
             <ReactMarkdown
@@ -141,15 +165,8 @@ export default function Home() {
 </ReactMarkdown>
 
           </CardContent>
-          <CardFooter>
-            <p className="text-sm text-gray-500">Last updated: {new Date().toLocaleString()}</p>
-          </CardFooter>
         </Card>
       </main>
-
-      <footer className="row-start-3 text-center text-gray-600">
-        Made by LAG
-      </footer>
     </div>
   );
 }

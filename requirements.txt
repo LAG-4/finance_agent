@@ -6,3 +6,4 @@ yfinance
 duckduckgo-search
 groq
 google-genai
+flask-cors

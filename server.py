@@ -176,4 +176,6 @@ if __name__ == '__main__':
     # model=Gemini(api_key=GOOGLE_API_KEY, id="...")
     # I have added api_key to the model instantiations above. Ensure your agno classes support this.
 
-    app.run(debug=True, port=5001) # Running on a different port to avoid conflict if needed
+    port = int(os.environ.get("PORT", 5001))
+app.run(host="0.0.0.0", port=port, debug=True)
+ # Running on a different port to avoid conflict if needed
